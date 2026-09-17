@@ -91,11 +91,11 @@ async def send_login_code(payload: AuthSendCodeRequest) -> AuthSendCodeResponse:
             message="Verification code sent to your Telegram app or SMS.",
         )
 
-    except errors.PhoneNumberInvalidError:
+    except (errors.PhoneNumberInvalidError, errors.PhoneNumberUnoccupiedError, TypeError, ValueError) as exc:
         await client.disconnect()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="The phone number is invalid. Ensure it includes country code (e.g. +91XXXXXXXXXX).",
+            detail=f"Invalid phone number: {exc}. Ensure it includes country code (e.g. +91XXXXXXXXXX).",
         )
     except errors.FloodWaitError as e:
         await client.disconnect()

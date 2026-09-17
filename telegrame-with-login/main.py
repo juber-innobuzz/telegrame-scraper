@@ -1,4 +1,4 @@
-"""Telegram Business Scraper API Application Entry Point."""
+"""Telegram MTProto & Auth Service - Application Entry Point."""
 
 from __future__ import annotations
 
@@ -8,11 +8,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 
 from app.config import API_BASE_PATH, API_NAME, API_VERSION, TELEGRAM_CLIENT_ENABLED
-from app.core.http_client import telegram_http_client
 from app.core.queue import job_queue_manager
 from app.core.session_pool import session_pool_manager
 from app.core.telethon_client import telethon_client_manager
-from app.routers import telegram
+from app.routers import router as auth_service_router
 
 
 @asynccontextmanager
@@ -35,19 +34,17 @@ async def lifespan(app: FastAPI):
     await job_queue_manager.stop()
     await session_pool_manager.stop_all()
     await telethon_client_manager.stop()
-    await telegram_http_client.close()
 
 
 app = FastAPI(
     title=API_NAME,
     version=API_VERSION,
-    description="Stateless, high-performance Business Intelligence, Scraper, and Enterprise API for public Telegram channels and posts.",
+    description="Enterprise Telegram MTProto Authentication, Multi-Account Session Pool, and Private Scraping API.",
     lifespan=lifespan,
     docs_url="/docs",
     redoc_url="/redoc",
 )
 
-# CORS middleware for open web accessibility
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -56,13 +53,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount Primary Unified Telegram Router with Swagger Documentation
-app.include_router(telegram.router, prefix=API_BASE_PATH)
+# Mount primary router with Swagger docs
+app.include_router(auth_service_router, prefix=API_BASE_PATH)
 
-# Fallback path aliases for compatibility (hidden from Swagger UI to eliminate duplicates)
-app.include_router(telegram.router, prefix="/api", include_in_schema=False)
-app.include_router(telegram.router, prefix="/telegram", include_in_schema=False)
-app.include_router(telegram.router, prefix="", include_in_schema=False)
+# Path aliases for backwards compatibility
+app.include_router(auth_service_router, prefix="/api", include_in_schema=False)
+app.include_router(auth_service_router, prefix="/telegram", include_in_schema=False)
+app.include_router(auth_service_router, prefix="", include_in_schema=False)
 
 
 @app.get("/", include_in_schema=False)
@@ -73,4 +70,4 @@ async def root():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8001, reload=True)

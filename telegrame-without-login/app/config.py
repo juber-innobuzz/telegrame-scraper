@@ -1,4 +1,4 @@
-"""Global configuration and settings for the Telegram Business Scraper API."""
+"""Configuration and settings for the Telegram Public Scraper Service."""
 
 from __future__ import annotations
 
@@ -7,26 +7,13 @@ from pathlib import Path
 from typing import List
 from dotenv import load_dotenv
 
-# Load .env file from project root
 ROOT_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(dotenv_path=ROOT_DIR / ".env")
 
-# API metadata
-API_NAME: str = "Telegram Business Scraper API"
+API_NAME: str = "Telegram Public Scraper API"
 API_VERSION: str = "1.0.0"
 API_BASE_PATH: str = "/api/v1/telegram"
 
-# Telegram MTProto User Client configuration
-TELEGRAM_API_ID: int = int(os.getenv("TELEGRAM_API_ID", "0"))
-TELEGRAM_API_HASH: str = os.getenv("TELEGRAM_API_HASH", "").strip()
-TELEGRAM_SESSION_STRING: str = os.getenv("TELEGRAM_SESSION_STRING", "").strip()
-TELEGRAM_CLIENT_ENABLED: bool = bool(TELEGRAM_API_ID and TELEGRAM_API_HASH and TELEGRAM_SESSION_STRING)
-
-# Redis Task Queue configuration
-REDIS_URL: Optional[str] = os.getenv("REDIS_URL", None)
-REDIS_ENABLED: bool = bool(REDIS_URL)
-
-# Request timeouts & limits
 REQUEST_TIMEOUT: int = int(os.getenv("TELEGRAM_REQUEST_TIMEOUT", "15"))
 MAX_RETRIES: int = int(os.getenv("TELEGRAM_MAX_RETRIES", "3"))
 BACKOFF_FACTOR: float = float(os.getenv("TELEGRAM_BACKOFF_FACTOR", "1.5"))
@@ -35,7 +22,6 @@ MAX_KEEPALIVE_CONNECTIONS: int = int(os.getenv("TELEGRAM_MAX_KEEPALIVE_CONNECTIO
 DEFAULT_SCRAPE_LIMIT: int = 100
 MAX_SCRAPE_LIMIT: int = 2000
 
-# User-Agent rotation pool
 USER_AGENTS: List[str] = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",

@@ -1,0 +1,18 @@
+services:
+  public_scraper_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: telegram_public_scraper
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - TELEGRAM_REQUEST_TIMEOUT=15
+      - TELEGRAM_MAX_RETRIES=3
+      - TELEGRAM_MAX_CONNECTIONS=50
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/telegram/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
