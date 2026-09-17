@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: telegram_scraper_redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - telegram_network
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: telegram_scraper_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - TELEGRAM_REQUEST_TIMEOUT=15
+    volumes:
+      - .:/app
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - telegram_network
+
+volumes:
+  redis_data:
+    driver: local
+
+networks:
+  telegram_network:
+    driver: bridge
